@@ -43,8 +43,26 @@ flask run --reload
 ```
 
 The `--reload` flag will detect file changes and restart the server automatically.
-
-
+### RBAC
+- Casting assistant permissions:
+    "get:actors",
+    "get:movies"
+- Casting director permissions:
+    "delete:actors",
+    "get:actors",
+    "get:movies",
+    "patch:actors",
+    "patch:movies",
+    "post:actors"
+- Executive producer permissions:
+    "delete:actors",
+    "delete:movies",
+    "get:actors",
+    "get:movies",
+    "patch:actors",
+    "patch:movies",
+    "post:actors",
+    "post:movies"
 
 ### Expected endpoints and behaviors
 
