@@ -1,6 +1,6 @@
 import json
 import os
-import unittestss
+import unittest
 from flask_sqlalchemy import SQLAlchemy
 from models import Actor, Movie, setup_db
 from dotenv import load_dotenv
@@ -46,6 +46,17 @@ class CastingAgencyTestCase(unittest.TestCase):
         pass
 
     # 8 test case when using user as director role(1 test case for each endpoint)
+    def test_403_error_when_assistant_fails_to_add_movie(self):
+        res = self.client().post(
+            "/movies", 
+            json=self.test_data_movie,
+            headers={'Authorization': f"Bearer {self.assistant_token}"})
+        data = json.loads(res.data)
+
+        self.assertEqual(data["error"], 403)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "Permission not found.")
+
     def test_successfully_get_all_movies_as_assistan(self):
         res = self.client().get(
             "/movies",     
@@ -58,19 +69,6 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(data["success"], True)
         self.assertTrue(len(data["movies"]))
 
-    def test_403_error_when_assistant_fails_to_add_movie(self):
-        res = self.client().post(
-            "/movies", 
-            json=self.test_data_movie,
-            headers={'Authorization': f"Bearer {self.assistant_token}"})
-        data = json.loads(res.data)
-        print(data)
-
-        self.assertEqual(data["error"], 403)
-        self.assertEqual(data["success"], False)
-        self.assertEqual(data["message"], "Permission not found.")
-
-    
     def test_403_error_when_assistant_fails_to_remove_movie(self):
         res = self.client().delete(
             "/movies/1234",             
@@ -94,17 +92,6 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(data["error"], 403)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Permission not found.")
-    
-    def test_successfully_get_all_actors_as_assistant(self):
-        res = self.client().get(
-            "/actors", 
-            headers={'Authorization': f"Bearer {self.assistant_token}"}
-        )
-        data = json.loads(res.data)
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data["success"], True)
-        
-        self.assertTrue(len(data["actors"]))
 
     def test_403_error_when_assistant_fails_to_add_actor(self):
         res = self.client().post(
@@ -119,6 +106,16 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Permission not found.")
 
+    def test_successfully_get_all_actors_as_assistant(self):
+        res = self.client().get(
+            "/actors", 
+            headers={'Authorization': f"Bearer {self.assistant_token}"}
+        )
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        
+        self.assertTrue(len(data["actors"]))
     
     def test_403_error_when_assistant_fails_to_modify_actor(self):
         res = self.client().patch(
@@ -145,18 +142,6 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "Permission not found.")
 
     # 8 test case when using user as director role(1 test case for each endpoint)
-
-    def test_successfully_get_all_movies_as_director(self): 
-        res = self.client().get(
-            "/movies", 
-            headers={'Authorization': f"Bearer {self.director_token}"}
-        )
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data["success"], True)
-        self.assertTrue(len(data["movies"]))
-
     def test_403_error_when_director_fails_to_add_movie(self):
         res = self.client().post(
             "/movies", 
@@ -169,6 +154,17 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(data["error"], 403)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Permission not found.")
+
+    def test_successfully_get_all_movies_as_director(self): 
+        res = self.client().get(
+            "/movies", 
+            headers={'Authorization': f"Bearer {self.director_token}"}
+        )
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        self.assertTrue(len(data["movies"]))
         
     
     def test_successfully_modify_movie_as_director(self):
@@ -196,17 +192,6 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Permission not found.")
 
-    def test_successfully_get_all_actors_as_director(self):
-        res = self.client().get(
-            "/actors",  
-            headers={'Authorization': f"Bearer {self.director_token}"}
-        )
-        data = json.loads(res.data)
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data["success"], True)
-        
-        self.assertTrue(len(data["actors"]))
-
     def test_successfully_add_actor_as_director(self):
         res = self.client().post(
             "/actors", 
@@ -218,7 +203,17 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
         self.assertIsNotNone(data["actor"])
+
+    def test_successfully_get_all_actors_as_director(self):
+        res = self.client().get(
+            "/actors",  
+            headers={'Authorization': f"Bearer {self.director_token}"}
+        )
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
         
+        self.assertTrue(len(data["actors"]))
 
     def test_successfully_remove_actor_as_director(self):
         with self.app.app_context():     
@@ -244,25 +239,6 @@ class CastingAgencyTestCase(unittest.TestCase):
 
 
     # 16 test case when using user as producer role (2 test case for each endpoint)
-    def test_successfully_get_all_movies_as_producer(self): 
-        res = self.client().get(
-            "/movies", 
-            headers={'Authorization': f"Bearer {self.producer_token}"}
-        )
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data["success"], True)
-        self.assertTrue(len(data["movies"]))
-
-    def test_401_error_when_getting_movies(self):
-        res = self.client().get("/movies")
-        data = json.loads(res.data)
-
-        self.assertEqual(data["error"], 401)
-        self.assertEqual(data["success"], False)
-        self.assertEqual(data["message"], "Authorization header is expected.")
-
     def test_successfully_add_movie_as_producer(self):
         res = self.client().post(
             "/movies", 
@@ -285,6 +261,25 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "bad request")
+    
+    def test_successfully_get_all_movies_as_producer(self): 
+        res = self.client().get(
+            "/movies", 
+            headers={'Authorization': f"Bearer {self.producer_token}"}
+        )
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        self.assertTrue(len(data["movies"]))
+
+    def test_401_error_when_getting_movies(self):
+        res = self.client().get("/movies")
+        data = json.loads(res.data)
+
+        self.assertEqual(data["error"], 401)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "Authorization header is expected.")
 
     def test_successfully_modify_movie_as_producer(self):
         with self.app.app_context():
@@ -335,24 +330,6 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "resource not found")
 
-    def test_successfully_get_all_actors_as_producer(self):
-        res = self.client().get(
-            "/actors",  
-            headers={'Authorization': f"Bearer {self.producer_token}"}
-        )
-        data = json.loads(res.data)
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data["success"], True)
-        self.assertTrue(len(data["actors"]))
-
-    def test_404_error_when_producer_fails_to_get_all_actors(self):
-        res = self.client().get("/actors")
-        data = json.loads(res.data)
-
-        self.assertEqual(data["error"], 401)
-        self.assertEqual(data["success"], False)
-        self.assertEqual(data["message"], "Authorization header is expected.")
-
     def test_successfully_add_actor_as_producer(self):
         res = self.client().post(
             "/actors", 
@@ -375,6 +352,24 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "bad request")
+    
+    def test_successfully_get_all_actors_as_producer(self):
+        res = self.client().get(
+            "/actors",  
+            headers={'Authorization': f"Bearer {self.producer_token}"}
+        )
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        self.assertTrue(len(data["actors"]))
+
+    def test_404_error_when_producer_fails_to_get_all_actors(self):
+        res = self.client().get("/actors")
+        data = json.loads(res.data)
+
+        self.assertEqual(data["error"], 401)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "Authorization header is expected.")
 
     def test_successfully_remove_actor_as_producer(self):
         with self.app.app_context():     
