@@ -1,4 +1,5 @@
--- PostgreSQL database dump for Movies and Actors
+--
+-- PostgreSQL database dump
 --
 
 -- Dumped from database version 11.3
@@ -33,7 +34,7 @@ CREATE TABLE public.movies (
 ALTER TABLE public.movies OWNER TO postgres;
 
 --
--- Name: actors; Type: TABLE; Schema: public; Owner: postgres
+-- Name: actors_id_seq; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.actors (
@@ -59,7 +60,15 @@ CREATE SEQUENCE public.movies_id_seq
 
 ALTER TABLE public.movies_id_seq OWNER TO postgres;
 
+--
+-- Name: actors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
 ALTER SEQUENCE public.movies_id_seq OWNED BY public.movies.id;
+
+--
+-- Name: actors; Type: TABLE; Schema: public; Owner: postgres
+--
 
 CREATE SEQUENCE public.actors_id_seq
     AS integer
@@ -71,32 +80,66 @@ CREATE SEQUENCE public.actors_id_seq
 
 ALTER TABLE public.actors_id_seq OWNER TO postgres;
 
+--
+-- Name: actors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
 ALTER SEQUENCE public.actors_id_seq OWNED BY public.actors.id;
 
--- Set defaults for primary keys
+--
+-- Name: movies id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
 ALTER TABLE ONLY public.movies ALTER COLUMN id SET DEFAULT nextval('public.movies_id_seq'::regclass);
+
+--
+-- Name: actors id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
 ALTER TABLE ONLY public.actors ALTER COLUMN id SET DEFAULT nextval('public.actors_id_seq'::regclass);
 
--- Insert demo records into the movies table
+--
+-- Data for Name: movies; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 COPY public.movies (id, title, producer, genre) FROM stdin;
 1	Movie 1	Producer 1	Genre 1
 2	Movie 2	Producer 2	Genre 2
 3	Movie 3	Producer 3	Genre 3
 \.
 
--- Insert demo records into the actors table
+--
+-- Data for Name: actors; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
 COPY public.actors (id, name, gender, bio) FROM stdin;
 1	Actor 1	Male	Bio 1
 2	Actor 2	Female	Bio 2
 3	Actor 3	Male	Bio 3
 \.
 
--- Set sequence values after data insertion
+--
+-- Name: movies_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
 SELECT pg_catalog.setval('public.movies_id_seq', 3, true);
+
+--
+-- Name: actors_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
 SELECT pg_catalog.setval('public.actors_id_seq', 3, true);
 
--- Primary keys
+--
+-- Name: categories movies_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
 ALTER TABLE ONLY public.movies ADD CONSTRAINT movies_pkey PRIMARY KEY (id);
+
+--
+-- Name: categories actors_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
 ALTER TABLE ONLY public.actors ADD CONSTRAINT actors_pkey PRIMARY KEY (id);
 
 --
